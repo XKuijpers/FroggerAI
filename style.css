@@ -1,0 +1,79 @@
+body {
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background-color: #87CEEB;
+    /* Sky blue background */
+}
+
+#game-board {
+    position: relative;
+    width: 400px;
+    height: 500px;
+    background-color: #2E8B57;
+    /* Dark green for the game board */
+    border: 5px solid #000;
+    /* Black border for the game board */
+    overflow: hidden;
+    /* Hide overflow of objects */
+    z-index: 1;
+    /* Ensure game board is below game objects */
+}
+
+#frog {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    background-color: limegreen;
+    border: 2px solid #000;
+    /* Black border around the frog */
+    border-radius: 50%;
+    /* Round shape for the frog */
+    bottom: 0;
+    left: calc(50% - 20px);
+    z-index: 10;
+    /* Ensure frog is above cars and logs */
+}
+
+.lane {
+    position: absolute;
+    width: 100%;
+    height: 60px;
+    background-color: #333;
+    /* Dark grey background for lanes */
+    border-bottom: 2px solid #000;
+    /* Black border separating lanes */
+    z-index: 5;
+    /* Ensure lanes are above game board but below objects */
+}
+
+.car,
+.log {
+    position: absolute;
+    width: 80px;
+    height: 40px;
+    border: 2px solid #000;
+    /* Black border around cars and logs */
+    z-index: 8;
+    /* Ensure cars and logs are above lanes but below frog */
+}
+
+.car {
+    background-color: red;
+}
+
+.log {
+    background-color: brown;
+}
+
+.road {
+    background-color: grey;
+    /* Light grey for road lanes */
+}
+
+.river {
+    background-color: #4682B4;
+    /* Steel blue for river lanes */
+}
