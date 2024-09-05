@@ -1,3 +1,8 @@
+body {
+    background: linear-gradient(to bottom, #87CEEB, #4682B4);
+    /* Sky blue gradient */
+}
+
 /* General game board styling */
 #game-board {
     width: 400px;
@@ -7,7 +12,10 @@
     background-color: #165116;
     /* Light blue background */
     overflow: hidden;
-    border: 5px solid black;
+    border: 3px solid black;
+    border-radius: 12px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    /* Shadow for depth */
 }
 
 /* Frog styling */
@@ -38,28 +46,23 @@
 /* Ensure the score and lives counters are positioned and styled */
 #score,
 #lives {
+    font-size: 20px;
+    color: #fff;
+    background-color: #000;
+    padding: 10px 20px;
+    border-radius: 10px;
     position: absolute;
     top: 10px;
-    font-size: 24px;
-    font-weight: bold;
-    color: white;
-    background-color: rgba(0, 0, 0, 0.5);
-    /* Semi-transparent background for readability */
-    padding: 5px 10px;
-    border-radius: 5px;
-    z-index: 10;
-    /* Ensure they are on top of other elements */
 }
 
 #score {
-    left: 10px;
-    /* Position the score counter on the left */
+    right: 10px;
 }
 
 #lives {
-    right: 10px;
-    /* Position the lives counter on the right */
+    left: 10px;
 }
+
 
 /* Lane styling */
 .lane {
