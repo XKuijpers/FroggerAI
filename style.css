@@ -1,79 +1,206 @@
-body {
-    margin: 0;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    background-color: #87CEEB;
-    /* Sky blue background */
-}
-
+/* General game board styling */
 #game-board {
-    position: relative;
     width: 400px;
-    height: 500px;
-    background-color: #2E8B57;
-    /* Dark green for the game board */
-    border: 5px solid #000;
-    /* Black border for the game board */
+    height: 900px;
+    margin: 0 auto;
+    position: relative;
+    background-color: #165116;
+    /* Light blue background */
     overflow: hidden;
-    /* Hide overflow of objects */
-    z-index: 1;
-    /* Ensure game board is below game objects */
+    border: 5px solid black;
 }
 
+/* Frog styling */
 #frog {
-    position: absolute;
     width: 40px;
     height: 40px;
-    background-color: limegreen;
-    border: 2px solid #000;
-    /* Black border around the frog */
-    border-radius: 50%;
-    /* Round shape for the frog */
-    bottom: 0;
-    left: calc(50% - 20px);
+    position: absolute;
+    background-image: url('img/frog.png');
+    /* Add a frog image */
+    background-size: cover;
     z-index: 10;
-    /* Ensure frog is above cars and logs */
+    /* Ensure frog is always on top */
+    transition: top 0.2s, left 0.2s;
+    /* Smooth movement with a delay */
 }
 
+#score-board {
+    display: flex;
+    justify-content: space-between;
+    width: 400px;
+    margin: 10px auto;
+    font-family: Arial, sans-serif;
+    font-size: 18px;
+    color: white;
+    text-shadow: 2px 2px 4px black;
+}
+
+/* Ensure the score and lives counters are positioned and styled */
+#score,
+#lives {
+    position: absolute;
+    top: 10px;
+    font-size: 24px;
+    font-weight: bold;
+    color: white;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent background for readability */
+    padding: 5px 10px;
+    border-radius: 5px;
+    z-index: 10;
+    /* Ensure they are on top of other elements */
+}
+
+#score {
+    left: 10px;
+    /* Position the score counter on the left */
+}
+
+#lives {
+    right: 10px;
+    /* Position the lives counter on the right */
+}
+
+/* Lane styling */
 .lane {
     position: absolute;
     width: 100%;
     height: 60px;
-    background-color: #333;
-    /* Dark grey background for lanes */
-    border-bottom: 2px solid #000;
-    /* Black border separating lanes */
-    z-index: 5;
-    /* Ensure lanes are above game board but below objects */
 }
 
-.car,
-.log {
-    position: absolute;
+.lane.road {
+    background-color: #383535;
+    /* Dark gray for roads */
+}
+
+.lane.river {
+    background-color: #3737b5;
+    /* Blue for rivers */
+}
+
+.lane.grass {
+    background-color: #165116;
+    /* Green for grass */
+}
+
+/* Car and Log styling */
+.car {
     width: 80px;
     height: 40px;
-    border: 2px solid #000;
-    /* Black border around cars and logs */
-    z-index: 8;
-    /* Ensure cars and logs are above lanes but below frog */
-}
-
-.car {
-    background-color: red;
+    background-image: url('img/car.png');
+    /* Replace with actual car image */
+    background-size: cover;
+    position: absolute;
 }
 
 .log {
-    background-color: brown;
+    width: 80px;
+    height: 40px;
+    background-image: url('img/log.png');
+    /* Replace with actual log image */
+    background-size: cover;
+    position: absolute;
 }
 
-.road {
-    background-color: grey;
-    /* Light grey for road lanes */
+/* Animation for sploosh effect when touching the river */
+@keyframes sploosh {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.5);
+        opacity: 0.5;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
 }
 
-.river {
-    background-color: #4682B4;
-    /* Steel blue for river lanes */
+.sploosh-effect {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: url(img/splash.png) no-repeat center center;
+    background-size: cover;
+    animation: sploosh 1s forwards;
+}
+
+/* Animation for blood effect when touching a car */
+@keyframes blood {
+    0% {
+        transform: scale(1);
+        opacity: 1;
+    }
+
+    50% {
+        transform: scale(1.2);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: scale(1);
+        opacity: 0;
+    }
+}
+
+.blood-effect {
+    position: absolute;
+    width: 50px;
+    height: 50px;
+    background: url(img/blood.png) no-repeat center center;
+    background-size: cover;
+    animation: blood 1s forwards;
+}
+
+/* CSS for the message overlay */
+#message-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+}
+
+/* Styles for the message overlay */
+#message-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent background */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    /* Ensure it's on top of everything else */
+    display: none;
+    /* Hide by default */
+}
+
+#message-text {
+    color: white;
+    font-size: 24px;
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Slightly darker background for text */
+    padding: 20px;
+    border-radius: 8px;
+}
+
+#restart-button {
+    margin-left: 5px;
+    padding: 20px;
+    font-size: 18px;
+    cursor: pointer;
+    border-radius: 4px;
 }

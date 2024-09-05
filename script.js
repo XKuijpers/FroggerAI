@@ -2,14 +2,18 @@
 const gameBoard = document.getElementById('game-board');
 const frog = document.getElementById('frog');
 const gameWidth = 400;
-const gameHeight = 500;
+const gameHeight = 900; // Increased height for a bigger map
 const laneHeight = 60;
 const frogSize = 40;
 const objectWidth = 80; // Width of cars and logs
 const objectHeight = 40; // Height of cars and logs
+const winY = 0; // The Y position where the player wins
 
+let lives = 3; // Initial number of lives
+let score = 0; // We'll add scoring later if needed
 let frogX = gameWidth / 2 - frogSize / 2;
 let frogY = gameHeight - frogSize;
+let previousFrogY = frogY;
 let lanes = [];
 let cars = [];
 let logs = [];
@@ -42,11 +46,37 @@ document.addEventListener('keydown', (e) => {
     frogY = snapToGrid(newFrogY, laneHeight);
 
     updateFrogPosition();
+
+    // Award points for crossing a lane
+    if (frogY < previousFrogY) { // Moving upwards
+        const currentLane = lanes.find(lane => lane.yPosition === frogY);
+        if (currentLane && (currentLane.type === 'road' || currentLane.type === 'river')) {
+            score += 10; // Award 10 points for crossing a road or river
+            updateScore(); // Update the score display
+        }
+    }
+
+    previousFrogY = frogY; // Update the previous position
+
+    // Check for win condition
+    if (frogY === winY) {
+        score += 100; // Award 100 points for reaching the finish line
+        updateScore();
+        setTimeout(() => {
+            showMessage("Congratulations! You reached the end!", true);
+            resetFrog(); // Reset the game after winning
+        }, 100);
+    }
 });
 
 function updateFrogPosition() {
     frog.style.left = `${frogX}px`;
     frog.style.top = `${frogY}px`;
+}
+
+// Update the score display function
+function updateScore() {
+    document.getElementById('score').innerText = `Score: ${score}`;
 }
 
 // Create lanes
@@ -83,6 +113,39 @@ function moveObjects(objects, widthLimit) {
     });
 }
 
+function createEffect(type, x, y) {
+    let effect = document.createElement('div');
+    effect.className = type;
+    effect.style.left = `${x}px`;
+    effect.style.top = `${y}px`;
+    gameBoard.appendChild(effect);
+
+    // Remove effect after animation completes
+    effect.addEventListener('animationend', () => {
+        effect.remove();
+    });
+}
+
+// Function to show the message overlay
+function showMessage(message, gameOver) {
+    const overlay = document.getElementById('message-overlay');
+    const messageText = document.getElementById('message-text');
+    const restartButton = document.getElementById('restart-button');
+
+    messageText.textContent = message; // Set the message text
+    overlay.classList.remove('hidden'); // Make sure overlay is visible
+    overlay.style.display = 'flex'; // Ensure overlay is displayed as flex
+
+    // Show restart button only if it's a game over
+    restartButton.style.display = gameOver ? 'inline-block' : 'none';
+
+    // Restart game when the restart button is clicked
+    restartButton.onclick = () => {
+        overlay.classList.add('hidden'); // Hide overlay when restart button is clicked
+        overlay.style.display = 'none'; // Ensure overlay is hidden
+    };
+}
+
 // Check collision
 function checkCollision() {
     onLog = false;
@@ -96,8 +159,18 @@ function checkCollision() {
             frogX + frogSize > carLeft &&
             frogY < carTop + objectHeight &&
             frogY + frogSize > carTop) {
-            alert("You got hit by a car! Game Over.");
-            resetFrog();
+            lives--; // Lose a life
+            updateLives(); // Update the UI
+            if (lives === 0) {
+                setTimeout(() => {
+                    alert("Game Over! You ran out of lives.");
+                    resetGame(); // Call the reset game function
+                }, 100);
+            } else {
+                showMessage("You got hit by a car!", true);
+                createEffect('blood-effect', frogX, frogY); // Create blood effect
+                resetFrog(); // Reset the frog position
+            }
             return;
         }
     });
@@ -119,8 +192,18 @@ function checkCollision() {
     // Check if frog is on a river lane without being on a log
     const currentLane = lanes.find(lane => lane.yPosition === frogY);
     if (currentLane && currentLane.type === 'river' && !onLog) {
-        alert("You fell into the water! Game Over.");
-        resetFrog();
+        lives--; // Lose a life
+        updateLives(); // Update the UI
+        if (lives === 0) {
+            setTimeout(() => {
+                alert("Game Over! You ran out of lives.");
+                resetGame(); // Call the reset game function
+            }, 100);
+        } else {
+            showMessage("You fell into the water!", true);
+            createEffect('sploosh-effect', frogX, frogY); // Create sploosh effect
+            resetFrog(); // Reset the frog position
+        }
     }
 }
 
@@ -132,6 +215,10 @@ function resetFrog() {
     currentLogSpeed = 0;
     logOffsetX = 0; // Reset log offset
     updateFrogPosition();
+}
+
+function updateLives() {
+    document.getElementById('lives').innerText = `Lives: ${lives}`;
 }
 
 // Game loop
@@ -153,21 +240,43 @@ function gameLoop() {
     requestAnimationFrame(gameLoop);
 }
 
+function resetGame() {
+    lives = 3; // Reset lives back to 3
+    score = 0; // Reset score back to 0
+    updateLives(); // Update the lives display
+    updateScore(); // Update the score display
+    resetFrog(); // Reset frog's position
+}
+
 // Setup game
 function setupGame() {
-    // Roads and Rivers (Y positions start from top to bottom)
+    updateLives(); // Initialize the life counter display
+    updateScore(); // Initialize the score display
+
+    // Roads, Grass, and Rivers (Y positions start from top to bottom)
     createLane('road', 60, 2);
     createLane('road', 120, 3);
-    createLane('river', 180, 1);
-    createLane('river', 240, 2);
+    createLane('grass', 180, 0);
+    createLane('river', 240, 1);
+    createLane('river', 300, 2);
+    createLane('grass', 360, 0);
+    createLane('road', 420, 3);
+    createLane('road', 480, 2);
+    createLane('grass', 540, 0);
+    createLane('river', 600, 1);
+    createLane('river', 660, 2);
+    createLane('grass', 720, 0);
 
-    // Cars
+    // Cars and Logs for each road and river
     createObject('car', lanes[0], 2);
     createObject('car', lanes[1], 3);
+    createObject('car', lanes[6], 3);
+    createObject('car', lanes[7], 2);
 
-    // Logs
-    createObject('log', lanes[2], 1);
-    createObject('log', lanes[3], 2);
+    createObject('log', lanes[3], 1);
+    createObject('log', lanes[4], 2);
+    createObject('log', lanes[9], 1);
+    createObject('log', lanes[10], 2);
 
     // Start game loop
     gameLoop();
